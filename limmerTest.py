@@ -17,11 +17,14 @@ def main():
 
     window.startEventLoop(0.1)
     spinning_event.startEventLoop()
+    pointings_event.startEventLoop()
 
-    window.sendText(spinning_event, "\n", limmer.styles.Color.RED,
-                    "HELLO WORLD")
+    window.sendText("Formatting: ", spinning_event, "\n", limmer.styles.Color.RED, limmer.styles.Background.BLUE,
+                    limmer.styles.Formatting.STRIKETROUGH, limmer.styles.Formatting.ITALIC, "HELLO WORLD" * 20)
 
-    window.sendText("HELLO WORLDSSS" * 10, pointings_event, "END")
+    window.sendText("\n" * 3, " " * 100)
+
+    window.sendText(limmer.styles.InlineStyle.CLEAR, "HELLO WORLDSSS" * 10, pointings_event, "END")
 
     # Other main thread tasks can go here
     while not window.stop_event.is_set():

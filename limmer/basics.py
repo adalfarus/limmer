@@ -10,23 +10,29 @@ import os
 
 class Cursor:
     def __init__(self, position=None):
-        self.position = position or query_cursor_position()
+        self.position = list(position or query_cursor_position())
         self.current_command = ""
         
     def go_up(self, n=1):
-        self.current_command += f"\033[{n}A"
+        self.position[1] -= n
+        self.current_command += f"\x1b[{n}A"
     
     def go_down(self, n=1):
-        self.current_command += f"\033[{n}B"
+        self.position[1] += n
+        self.current_command += f"\x1b[{n}B"
     
     def go_left(self, n=1):
-        self.current_command += f"\033[{n}D"
+        self.position[0] -= n
+        self.current_command += f"\x1b[{n}D"
     
     def go_right(self, n=1):
-        self.current_command += f"\033[{n}C"
-    
+        self.position[0] += n
+        self.current_command += f"\x1b[{n}C"
+
+    def refresh_pos(self):
+        self.position = list(query_cursor_position())
+
     def go_to(self, x, y):
-        #self.position = query_cursor_position()
         current_x = self.position[0]
         current_y = self.position[1]
         
@@ -58,13 +64,16 @@ class Cursor:
 
 class Window:
     def __init__(self):
+        #sys.stdout.write(" \b")
+        #sys.stdout.flush()
         self.cursor = Cursor()
+        print("CCCCCCCCCC", self.cursor.position)
         self.events = []
         self.loop_thread = None
         self.stop_event = threading.Event()
 
         self.max_position = list(self.get_terminal_size())
-        self.last_style = [1, 37, 40]
+        self.last_style = [0, 37, 40]
 
     @staticmethod
     def get_terminal_size():
@@ -72,12 +81,21 @@ class Window:
         x, y = terminal_size_object.columns, terminal_size_object.lines
         return x, y
 
+    @staticmethod
+    def clamp_list(lst: list, smallest_lst, biggest_lst):
+        for i, element in enumerate(lst):
+            lst[i] = min(max(element, smallest_lst[i]), biggest_lst[i])
+        return lst
+
     def handle_resize(self):
         new_size = list(self.get_terminal_size())
         if new_size[0] != self.max_position[0]:
             self.recalculate_positions(new_size)
             self.max_position = new_size  # Needs to be adjusted here or recalculate position can't scale old positions
             self.redraw_interface()
+        if new_size != self.max_position:
+            cursor_position = self.cursor.position
+            self.cursor.position = self.clamp_list(cursor_position, [0, 0], self.max_position)
 
     def recalculate_positions(self, new_size):
         print("\nRE", new_size, self.max_position)
@@ -97,6 +115,7 @@ class Window:
         pass
 
     def windowTick(self):
+        self.cursor.refresh_pos()
         self.handle_resize()
         for event in self.events:
             #print(event)
@@ -120,18 +139,21 @@ class Window:
     def sendText(self, *content, no_send=False):
         for item in content:
             if issubclass(type(item), events.Event):
-                self.max_position[1] += item.length
+                #self.max_position[1] += item.length
+                #self.cursor.position = self.max_position
                 item.position = self.cursor.position
                 self._appendEvent(item)
+                print("HEEEELLLLPPPP", item.position)
             elif issubclass(type(item), InLineStyleAttr):
                 self._appendStyle(item)
             else:
                 #input(type(item))
-                if item != "\n":
-                    self.max_position[1] += 1
-                else:
-                    self.max_position[0] += 1
+                #if item != "\n":
+                #    self.max_position[1] += 1
+                #else:
+                #    self.max_position[0] += 1
                 self._appendText(item)
+            self.cursor.refresh_pos()
         if not no_send:
             self.cursor.finishCMD()
             
@@ -141,16 +163,16 @@ class Window:
 
 
     def _appendStyle(self, new_style):
-        self.cursor.appendCMD("\033[0m")
+        self.cursor.appendCMD("\x1b[0m")
         for i, part in enumerate([x for x in new_style.value.split(";")]):
             if part.isnumeric():
                 if not part == 0:
                     self.last_style[i] = part
                 else:
-                    self.last_style[i] = [1, 37, 40][i]
+                    self.last_style[i] = [0, 37, 40][i]
         style_str = ';'.join([str(y) for y in self.last_style])
-        print(style_str)
-        self.cursor.appendCMD(f"\033[{style_str}m")
+        #print(style_str)
+        self.cursor.appendCMD(f"\x1b[{style_str}m")
         #self.cursor.finishCMD()
             
     def stopEventLoop(self):
