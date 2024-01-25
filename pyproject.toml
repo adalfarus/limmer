@@ -3,17 +3,13 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["aplustools", "aplustools.data", "aplustools.io", "aplustools.utils", "aplustools.web"]
+packages = ["limmer"]
 
 [project]
-name = "aplustools"
-version = "0.1.4.1"
+name = "limmer"
+version = "0.2.0"
 dependencies = [
-  "requests>=2.31.0",
-  "Pillow>=10.1.0",
-  "BeautifulSoup4>=4.12.2",
-  "datetime",
-  "winreg; os_name != 'nt'",
+  "ctypes; os_name != 'nt'",
 ]
 requires-python = ">= 3.9"
 authors = [
@@ -22,35 +18,26 @@ authors = [
 maintainers = [
   {name = "Cariel Becker", email = "cariel.becker@gmx.de"},
 ]
-description = "A collection of helpful tools"
+description = "A lightweight and easy way to improve your terminal apps."
 readme = {file = "README.md", content-type = "text/markdown"}
-license = {text = "GPL-3.0-or-later"} # or "GPL-3.0-only"
-keywords = ["general", "tools", "app tools", "beta", "apt"]
+license = {text = "Apache-2.0"}
+keywords = ["terminal", "cmd", "command line", "lightweight", "glimmer"]
 classifiers = [
-	"Development Status :: 4 - Beta",
+	"Development Status :: 3 - Alpha",
 	"Programming Language :: Python",
 	"Natural Language :: English"
 ]
 
-[project.optional-dependencies]
-data = ["PySide6>=6.5.1.1"]
-web = ["duckduckgo_search>=3.9.6"]
-utils = [
-  "rich>=13.7.0",
-  "pycryptodome>=3.19.0",
-]
-dev = ["pytest"]
-
 [project.urls]
-Home = "https://pypi.org/project/aplustools/"
-Repository = "https://github.com/adalfarus/aplustools"
-Documentation = "https://github.com/adalfarus/aplustools/wiki"
-"Issue tracker" = "https://github.com/adalfarus/aplustools/issues"
+Home = "https://pypi.org/project/limmer/"
+Repository = "https://github.com/adalfarus/limmer"
+Documentation = "https://github.com/adalfarus/limmer/wiki"
+"Issue tracker" = "https://github.com/adalfarus/limmer/issues"
 
 #[tool.pytest.ini_options]
 ## This is equivalent to setup_requires and tests_require
 ## Add your pytest configuration here
 #addopts = "your pytest options"
 
-[project.scripts]
-run_apt_tests = "aplustools.tests:main"
+#[project.scripts]
+#run_apt_tests = "aplustools.tests:main"
