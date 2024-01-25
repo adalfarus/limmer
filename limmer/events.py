@@ -13,6 +13,7 @@ class Event:
         self.loop_thread = None
 
     def update(self, cursor: Cursor):
+        #print(self.position, cursor.position)
         self.current_cursor = cursor
 
     def doUpdate(self, cursor: Cursor):

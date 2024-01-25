@@ -33,6 +33,7 @@ class Cursor:
         self.position = list(query_cursor_position())
 
     def go_to(self, x, y):
+        #self.refresh_pos()
         current_x = self.position[0]
         current_y = self.position[1]
         
@@ -102,10 +103,13 @@ class Window:
         for event in self.events:  # Dynamic events length is kinda easy with this now
             # Logic to adjust the position of each event
             last_event_position = event.position
-            old_size = self.max_position
+            old_width = self.max_position[0]
 
-            event_pos_chars = last_event_position[0] + (last_event_position[1] * old_size[0])
-            new_event_pos = [*reversed([*divmod(event_pos_chars, new_size[0])])]  # [event_pos_chars // new_size[0], event_pos_chars % new_size[0]]
+            # x + (y * width)
+            event_pos_chars = last_event_position[0] + (last_event_position[1] * old_width)
+            new_event_pos = [*divmod(event_pos_chars, old_width)][::-1]
+            # [event_pos_chars // new_size[0], event_pos_chars % new_size[0]] = divmod
+            # Slicing is more readable,but can be a lot slower than the old with large lists as it creates entire copies
             event.position = new_event_pos
 
     def redraw_interface(self):
@@ -115,13 +119,15 @@ class Window:
         pass
 
     def windowTick(self):
-        self.cursor.refresh_pos()
+        #self.cursor.refresh_pos()
         self.handle_resize()
         for event in self.events:
             #print(event)
             #print(self.max_position)
             event.update(self.cursor)
-        self.cursor.go_to(*self.max_position)
+        #sys.stdout.write(" \b")
+        #sys.stdout.flush()
+        #self.cursor.refresh_pos()#self.cursor.go_to(*self.max_position)
             
     def startEventLoop(self, interval=0.1):
         self.loop_thread = threading.Thread(target=self.eventLoop, args=(interval,))
