@@ -13,4 +13,4 @@ class InlineStyle:
 
 class Color(InlineStyle):
     BLACK = InlineStyle.addAttr(";30;")
-    RED = InlineStyle.addAttr("0;31;")
+    RED = InlineStyle.addAttr(";31;")

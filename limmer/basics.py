@@ -3,11 +3,14 @@ import sys
 import signal
 import threading
 from .styles import InLineStyleAttr
-#from .events import Event
+from . import events
+from .ANSIUtils import query_cursor_position
+import os
+
 
 class Cursor:
-    def __init__(self, position=(0, 0)):
-        self.position = position
+    def __init__(self, position=None):
+        self.position = position or query_cursor_position()
         self.current_command = ""
         
     def go_up(self, n=1):
@@ -23,6 +26,7 @@ class Cursor:
         self.current_command += f"\033[{n}C"
     
     def go_to(self, x, y):
+        #self.position = query_cursor_position()
         current_x = self.position[0]
         current_y = self.position[1]
         
@@ -50,40 +54,7 @@ class Cursor:
     
     def setCMD(self, new_cmd: str):
         self.current_command = new_cmd
-        
-class Event:
-    length = 0
-    def __init__(self, position=(0, 0)):
-        self.position = position
-        self.current_cursor = None
-        self.loop_running = False
-        self.loop_thread = None
-        
-    def update(self, cursor: Cursor):
-        self.current_cursor = cursor
-        
-    def doUpdate(self, cursor: Cursor):
-        cursor.go_to(*self.position)
-        # ...
-        cursor.finishCMD()
-        
-    def startEventLoop(self):
-        self.loop_running = True
-        self.loop_thread = threading.Thread(target=self.eventLoop)
-        self.loop_thread.start()
-        
-    def eventLoop(self):
-        for i in range(100):
-            time.sleep(0.1) # Do stuff
-            
-            # Update
-            if self.current_cursor:
-                self.doUpdate(self.current_cursor)
-                self.current_cursor = None
-    
-    def stopEventLoop(self):
-        self.loop_running = False
-        self.loop_thread.join()  # Wait for the event loop thread to finish
+
 
 class Window:
     def __init__(self):
@@ -91,13 +62,47 @@ class Window:
         self.events = []
         self.loop_thread = None
         self.stop_event = threading.Event()
-        
-        self.max_position = [0, 0]
-        self.last_style = [0, 0, 0]
-        
+
+        self.max_position = list(self.get_terminal_size())
+        self.last_style = [1, 37, 40]
+
+    @staticmethod
+    def get_terminal_size():
+        terminal_size_object = os.get_terminal_size()
+        x, y = terminal_size_object.columns, terminal_size_object.lines
+        return x, y
+
+    def handle_resize(self):
+        new_size = list(self.get_terminal_size())
+        if new_size[0] != self.max_position[0]:
+            self.recalculate_positions(new_size)
+            self.max_position = new_size  # Needs to be adjusted here or recalculate position can't scale old positions
+            self.redraw_interface()
+
+    def recalculate_positions(self, new_size):
+        print("\nRE", new_size, self.max_position)
+        for event in self.events:  # Dynamic events length is kinda easy with this now
+            # Logic to adjust the position of each event
+            last_event_position = event.position
+            old_size = self.max_position
+
+            event_pos_chars = last_event_position[0] + (last_event_position[1] * old_size[0])
+            new_event_pos = [*reversed([*divmod(event_pos_chars, new_size[0])])]  # [event_pos_chars // new_size[0], event_pos_chars % new_size[0]]
+            event.position = new_event_pos
+
+    def redraw_interface(self):
+        # Clear the screen and redraw all elements
+        # Maybe call finishCMD or similar methods on each event or element
+        # But not needed for now as the terminal re-wraps everything for us
+        pass
+
     def windowTick(self):
+        self.handle_resize()
         for event in self.events:
+            #print(event)
+            #print(self.max_position)
             event.update(self.cursor)
+        self.cursor.go_to(*self.max_position)
             
     def startEventLoop(self, interval=0.1):
         self.loop_thread = threading.Thread(target=self.eventLoop, args=(interval,))
@@ -114,8 +119,9 @@ class Window:
             
     def sendText(self, *content, no_send=False):
         for item in content:
-            if issubclass(type(item), Event):
+            if issubclass(type(item), events.Event):
                 self.max_position[1] += item.length
+                item.position = self.cursor.position
                 self._appendEvent(item)
             elif issubclass(type(item), InLineStyleAttr):
                 self._appendStyle(item)
@@ -132,12 +138,16 @@ class Window:
     def _appendText(self, text):
         self.cursor.appendCMD(text)
         #self.cursor.finishCMD()
-            
+
+
     def _appendStyle(self, new_style):
         self.cursor.appendCMD("\033[0m")
         for i, part in enumerate([x for x in new_style.value.split(";")]):
             if part.isnumeric():
-                self.last_style[i] = part
+                if not part == 0:
+                    self.last_style[i] = part
+                else:
+                    self.last_style[i] = [1, 37, 40][i]
         style_str = ';'.join([str(y) for y in self.last_style])
         print(style_str)
         self.cursor.appendCMD(f"\033[{style_str}m")
