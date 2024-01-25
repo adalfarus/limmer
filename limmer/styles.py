@@ -1,20 +1,16 @@
-class AddOnAccessDescriptor:
-    def __init__(self, value, formatter):
+
+
+class InLineStyleAttr:
+    def __init__(self, value):
         self.value = value
-        self.formatter = formatter
-
-    def __str__(self):
-        return self.formatter(self.value)
-
-def inline_style_formatter(value):
-    return f"\e[{value}m"
 
 class InlineStyle:
     @staticmethod
     def addAttr(value):
-        return AddOnAccessDescriptor(value, inline_style_formatter)
+        return InLineStyleAttr(value)
         
-    CLEAR = addAttr("0")
+    CLEAR = addAttr("0;0;0")
 
 class Color(InlineStyle):
-    BLACK = InlineStyle.addAttr("0;30")
+    BLACK = InlineStyle.addAttr(";30;")
+    RED = InlineStyle.addAttr("0;31;")

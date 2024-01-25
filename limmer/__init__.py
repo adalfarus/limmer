@@ -1,4 +1,4 @@
-from . import enableANSICC
+from . import enableANSI
 
 from .styles import *
 from .events import *
