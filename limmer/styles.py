@@ -1,13 +1,13 @@
-
+from typing import Union
 
 class InLineStyleAttr:
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, value: str):
+        self.value: str = value
 
 
 class InlineStyle:
     @staticmethod
-    def addAttr(value):
+    def addAttr(value: str) -> InLineStyleAttr:
         return InLineStyleAttr(value)
         
     CLEAR = addAttr("0;0;0")
@@ -24,6 +24,9 @@ class Color(InlineStyle):
     WHITE = InlineStyle.addAttr(";37;")
     CLEAR = InlineStyle.addAttr(";0;")
 
+    @staticmethod
+    def RGB(r: Union[str, int], g: Union[str, int], b: Union[str, int]) -> InLineStyleAttr:
+        return InLineStyleAttr(f";38:2:{r}:{g}:{b};")
 
 class Formatting(InlineStyle):
     BOLD = InlineStyle.addAttr("1;;")
@@ -45,3 +48,7 @@ class Background(InlineStyle):
     CYAN = InlineStyle.addAttr(";;46")
     WHITE = InlineStyle.addAttr(";;47")
     CLEAR = InlineStyle.addAttr(";;0")
+
+    @staticmethod
+    def RGB(r: Union[str, int], g: Union[str, int], b: Union[str, int]) -> InLineStyleAttr:
+        return InLineStyleAttr(f";;48:2:{r}:{g}:{b}")

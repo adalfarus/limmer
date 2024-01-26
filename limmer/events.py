@@ -1,12 +1,13 @@
 from .basics import Cursor
 import threading
 import time
+from typing import Tuple, Optional
 
 
 class Event:
     length = 0
 
-    def __init__(self, position=(1, 1)):
+    def __init__(self, position: Optional[Tuple[int]]=(1, 1)):
         self.position = position
         self.current_cursor = None
         self.loop_running = False
@@ -43,13 +44,16 @@ class Event:
 class SpinningEvent(Event):
     length = 1
 
-    def __init__(self, position=(0, 0)):
+    def __init__(self, position: Optional[Tuple[int]]=(0, 0)):
         super().__init__(position)
         self.spinner = spinning_cursor()
         
     def doUpdate(self, cursor: Cursor):
-        cursor.go_to(*self.position)
-        cursor.go_left()
+        update_pos = self.position
+        update_pos[0] += 1
+        cursor.go_to(*update_pos)
+        cursor.appendCMD("\b")
+        #cursor.go_left()
         cursor.appendCMD(next(self.spinner))
         cursor.finishCMD()
 
@@ -63,7 +67,7 @@ def spinning_cursor():
 class PointingsEvent(Event):
     length = 3
 
-    def __init__(self, position=(0, 0)):
+    def __init__(self, position: Optional[Tuple[int]]=(0, 0)):
         super().__init__(position)
         self.spinner = pointings_cursor()
         
