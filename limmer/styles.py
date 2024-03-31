@@ -1,5 +1,6 @@
 from typing import Union
 
+
 class InLineStyleAttr:
     def __init__(self, value: str):
         self.value: str = value
@@ -27,6 +28,7 @@ class Color(InlineStyle):
     @staticmethod
     def RGB(r: Union[str, int], g: Union[str, int], b: Union[str, int]) -> InLineStyleAttr:
         return InLineStyleAttr(f";38:2:{r}:{g}:{b};")
+
 
 class Formatting(InlineStyle):
     BOLD = InlineStyle.addAttr("1;;")

@@ -5,11 +5,15 @@ from .basics import *
 
 
 enable_ansi()
+print("(c) Microsoft Corporation. All rights reserved.")
+print("Welcome to limmer, the version you're currently working with has 'some' problems, the biggest is positioning.")
+print("\n\n")
+
 #print(f"\033[100B",
 #      f"\033[100C")
-print("1" * 200)
-print("\033[1C")
+# print("1" * 200)
+# print("\033[1C")
 #input(query_cursor_position())
-print("\033[1A\b\b\b\b")
+# print("\033[1A\b\b\b\b")
 #input()
 #input(query_cursor_position())
