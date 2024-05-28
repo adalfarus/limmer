@@ -5,7 +5,7 @@ from .basics import *
 
 
 enable_ansi()
-print("(c) Microsoft Corporation. All rights reserved.")
+print("(c) Software Corporation. All rights reserved.")
 print("Welcome to limmer, the version you're currently working with has 'some' problems, the biggest is positioning.")
 print("\n\n")
 

@@ -7,6 +7,8 @@ import re
 import time
 
 from _security import ControlCodeProtocol, UndefinedSocket, SecureSocketServer
+from ANSIUtils import enable_ansi
+enable_ansi()
 
 
 shutdown_signal = queue.Queue()  # Used to signal the server to shutdown between threads
@@ -15,7 +17,7 @@ shutdown_signal = queue.Queue()  # Used to signal the server to shutdown between
 def client_handler(connection, server: SecureSocketServer):
     try:
         server.rate_limit = 1000
-        server.start_and_exchange_keys()
+        server.start_and_exchange_keys(False)
     finally:
         shutdown_signal.put(True)
         connection.close()

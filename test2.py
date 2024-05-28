@@ -14,12 +14,12 @@ class _CmdWindow:
         self.host = forced_host or "127.0.0.1"
         self.port = forced_port or self.find_available_port()
 
-        # Initialize the SecureSocketClient
-        self.client = SecureSocketClient(self.protocol, forced_host=self.host, forced_port=self.port)
-        self.client.start_and_exchange_keys()  # Assume this method sets up the connection and manages state
-        # Starting the external process that presumably also uses SecureSocketClient
+        # Starting the external process that uses SecureSocketServer
         self.process = subprocess.Popen(['py', './limmer/client.py', str(self.host), str(self.port),
                                          self.protocol.serialize()], creationflags=subprocess.CREATE_NEW_CONSOLE)
+        # Initialize the SecureSocketClient
+        self.client = SecureSocketClient(self.protocol, forced_host=self.host, forced_port=self.port)
+        self.client.start_and_exchange_keys()
 
     @staticmethod
     def find_available_port():
@@ -45,5 +45,5 @@ if __name__ == "__main__":
     window.write("HELL"*200)
     window.write("YEAH")
     # window.encoder.send_control_message("input")
-    window.shutdown()
+    # window.shutdown()
     time.sleep(10)
