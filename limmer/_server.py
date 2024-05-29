@@ -20,11 +20,12 @@ def handle_shutdown(signum, frame):
     shutdown_signal.put(True)
 
 
-def client_handler(server: SecureSocketServer, thread_shutdown_signal):
+def client_handler(server: SecureSocketServer):
     try:
         server.rate_limit = 1000
-        server.start_and_exchange_keys()
-        while not thread_shutdown_signal.empty():
+        server.startup()
+
+        while shutdown_signal.empty() and not server.is_shutdown():
             time.sleep(0.1)
         server.shutdown_client()
     finally:

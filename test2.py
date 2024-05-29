@@ -19,7 +19,7 @@ class _CmdWindow:
                                          self.protocol.serialize()], creationflags=subprocess.CREATE_NEW_CONSOLE)
         # Initialize the SecureSocketClient
         self.client = SecureSocketClient(self.protocol, forced_host=self.host, forced_port=self.port)
-        self.client.start_and_exchange_keys()
+        self.client.startup()
 
     @staticmethod
     def find_available_port():
@@ -39,11 +39,16 @@ class _CmdWindow:
         time.sleep(1)
         self.client.close_connection()
 
+    def input(self, string: str):
+        self.client.add_control_code("input", string)
+        self.client.sendall()
+
 
 if __name__ == "__main__":
     window = _CmdWindow()
     window.write("HELL"*200)
     window.write("YEAH")
+    window.input("Input: ")
     # window.encoder.send_control_message("input")
     # window.shutdown()
     time.sleep(10)

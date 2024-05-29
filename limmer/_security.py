@@ -4,7 +4,6 @@ from aplustools.utils import genpass as _genpass
 DummyProtocol = _genpass.DummyProtocol
 
 ControlCodeProtocol = _genpass.ControlCodeProtocol
-ControlCode = _genpass.ControlCode
 
 UndefinedSocket = _genpass.UndefinedSocket
 
