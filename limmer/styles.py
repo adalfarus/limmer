@@ -5,6 +5,18 @@ class InLineStyleAttr:
     def __init__(self, value: str):
         self.value: str = value
 
+    def __repr__(self):
+        last_style = [0, 37, 40]
+        for i, part in enumerate([x for x in self.value.split(";")]):
+            if part.isnumeric() or part.replace(":", "").isnumeric():
+                part = part.replace(":", ";")
+                if not part == 0:
+                    last_style[i] = part
+                else:
+                    last_style[i] = [0, 37, 40][i]
+        style_str = ';'.join([str(y) for y in last_style])
+        return f"\x1b[0m\x1b[{style_str}m"
+
 
 class InlineStyle:
     @staticmethod

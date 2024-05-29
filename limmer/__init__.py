@@ -5,9 +5,10 @@ from .basics import *
 
 
 enable_ansi()
-print("(c) Software Corporation. All rights reserved.")
+print(f"{Color.CLEAR}Cmd Win [{Color.RED}SECURE{Color.CLEAR}] for {Color.RGB(0, 0, 0)}Windows{Color.CLEAR} [Version 1.0.0]")
+print("(c) Limmer LLC. All rights reserved.")
 print("Welcome to limmer, the version you're currently working with has 'some' problems, the biggest is positioning.")
-print("\n\n")
+print("\nC:\\Users\\user_> ")
 
 #print(f"\033[100B",
 #      f"\033[100C")
