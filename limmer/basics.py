@@ -24,7 +24,7 @@ class _CmdWindow:
             self.port = self.test_port(port)
             port = self.find_available_port()
 
-        self.process = subprocess.Popen(['py', './client.py', str(self.host), str(self.port),
+        self.process = subprocess.Popen(['py', './_server.py', str(self.host), str(self.port),
                                          self.protocol.serialize()], creationflags=subprocess.CREATE_NEW_CONSOLE)
         self.connection = None
         self.connection_established = False

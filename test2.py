@@ -15,7 +15,7 @@ class _CmdWindow:
         self.port = forced_port or self.find_available_port()
 
         # Starting the external process that uses SecureSocketServer
-        self.process = subprocess.Popen(['py', './limmer/client.py', str(self.host), str(self.port),
+        self.process = subprocess.Popen(['py', './limmer/_server.py', str(self.host), str(self.port),
                                          self.protocol.serialize()], creationflags=subprocess.CREATE_NEW_CONSOLE)
         # Initialize the SecureSocketClient
         self.client = SecureSocketClient(self.protocol, forced_host=self.host, forced_port=self.port)
