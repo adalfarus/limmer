@@ -1,10 +1,6 @@
-import random
-import socket
-import errno
 import subprocess
-import threading
-import time
-from limmer._security import ControlCodeProtocol, SecureSocketClient
+from aplustools.utils.genpass import ControlCodeProtocol, SecureSocketClient, PortUtils
+from limmer.styles import Color
 
 
 # {comm_code::NEWLINE}  # Seperator for messages
@@ -12,7 +8,7 @@ class _CmdWindow:
     def __init__(self, forced_host: str = None, forced_port: int = None):
         self.protocol = ControlCodeProtocol()
         self.host = forced_host or "127.0.0.1"
-        self.port = forced_port or self.find_available_port()
+        self.port = forced_port or PortUtils.find_available_port()
 
         # Starting the external process that uses SecureSocketServer
         self.process = subprocess.Popen(['py', './limmer/_server.py', str(self.host), str(self.port),
@@ -21,34 +17,39 @@ class _CmdWindow:
         self.client = SecureSocketClient(self.protocol, forced_host=self.host, forced_port=self.port)
         self.client.startup()
 
-    @staticmethod
-    def find_available_port():
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind(('', 0))  # Bind to an available port provided by the OS
-            return s.getsockname()[1]  # Return the allocated port
-
-    def write(self, command):
-        if command:
-            self.client.add_message(command)
-            self.client.sendall()
+    def write(self, *command):
+        for command_part in command:
+            self.client.add_message(str(command_part))
+        self.client.sendall()
 
     def shutdown(self):
         # Tell the client to initiate a graceful shutdown
-        self.client.add_control_code("shutdown")
-        self.client.sendall()
-        time.sleep(1)
-        self.client.close_connection()
+        if not self.client.is_shutdown():
+            self.client.add_control_code("shutdown")
+            self.client.sendall()
+            self.client.close_connection()
 
-    def input(self, string: str):
+    def input(self, string: str = ""):
         self.client.add_control_code("input", string)
         self.client.sendall()
+
+        while True:
+            input_str = self.client.get_input_buffer()
+
+            if input_str != "" or self.client.is_shutdown():
+                break
+
+        return input_str
 
 
 if __name__ == "__main__":
     window = _CmdWindow()
     window.write("HELL"*200)
     window.write("YEAH")
-    window.input("Input: ")
-    # window.encoder.send_control_message("input")
-    # window.shutdown()
-    time.sleep(10)
+    inputs = window.input("Input: ")
+    print("INPUTTED", inputs)
+
+    window.write(Color.GREEN, "Grass")
+    window.input()
+
+    window.shutdown()

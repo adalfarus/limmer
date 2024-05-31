@@ -9,7 +9,7 @@ import socket
 import errno
 import threading
 import subprocess
-from ._security import ControlCodeProtocol
+from aplustools.utils.genpass import ControlCodeProtocol
 
 
 # {comm_code::NEWLINE}  # Seperator for messages
