@@ -1,5 +1,6 @@
 import subprocess
-from aplustools.utils.genpass import ControlCodeProtocol, SecureSocketClient, PortUtils
+from aplustools.security.protocols import ControlCodeProtocol, SecureSocketClient
+from aplustools.utils import PortUtils
 from limmer.styles import Color
 
 
@@ -18,11 +19,12 @@ class _CmdWindow:
         self.client.startup()
 
     def write(self, *command):
-        for command_part in command:
-            self.client.add_message(str(command_part))
+        self.client.add_message(''.join(str(command_part) for command_part in command))
         self.client.sendall()
+        print("CMD", *command)
 
     def shutdown(self):
+        print("SHUTTING DOWN")
         # Tell the client to initiate a graceful shutdown
         if not self.client.is_shutdown():
             self.client.add_control_code("shutdown")

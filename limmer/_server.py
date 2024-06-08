@@ -5,7 +5,7 @@ import sys
 import signal
 import time
 
-from aplustools.utils.genpass import ControlCodeProtocol, UndefinedSocket, SecureSocketServer
+from aplustools.security.protocols import ControlCodeProtocol, UndefinedSocket, SecureSocketServer
 from aplustools.io import enable_windows_ansi
 enable_windows_ansi()
 
@@ -52,7 +52,7 @@ def run_server(host, port, protocol):
                 thread.start()
                 thread.join()
             except Exception as e:
-                print(e)
+                print(f"An error occurred: {e}")
 
 
 if __name__ == "__main__":
